@@ -3,7 +3,7 @@ import DebugTrace from './components/DebugTrace';
 import QueryBox from './components/QueryBox';
 import VizSwitch from './components/VizSwitch';
 import { apiBase, checkHealth, queryNlp } from './lib/api';
-import { FIXTURE_COMPARISON, FIXTURE_MULTI_TREND, FIXTURE_SINGLE_STAT, FIXTURE_TEAM_COMPARE, FIXTURE_TREND } from './lib/fixtures';
+import { FIXTURE_COMPARISON, FIXTURE_LEADERBOARD, FIXTURE_MULTI_TREND, FIXTURE_SINGLE_STAT, FIXTURE_TEAM_COMPARE, FIXTURE_TREND } from './lib/fixtures';
 import type { ApiError, QueryResponse } from './lib/types';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
@@ -73,7 +73,7 @@ export default function App() {
 
   const cancel = useCallback(() => abortRef.current?.abort(), []);
 
-  const loadDemo = (which: 'single' | 'trend' | 'compare' | 'multi' | 'teams') => {
+  const loadDemo = (which: 'single' | 'trend' | 'compare' | 'multi' | 'teams' | 'leaders') => {
     const r =
       which === 'trend'
         ? FIXTURE_TREND
@@ -83,7 +83,9 @@ export default function App() {
             ? FIXTURE_MULTI_TREND
             : which === 'teams'
               ? FIXTURE_TEAM_COMPARE
-              : FIXTURE_SINGLE_STAT;
+              : which === 'leaders'
+                ? FIXTURE_LEADERBOARD
+                : FIXTURE_SINGLE_STAT;
     setResponse(r);
     setStatus('success');
     setError(null);
@@ -124,6 +126,7 @@ export default function App() {
               <li>“what is brunson&apos;s highest points per game season of his career?” → career trend</li>
               <li>“what was the celtics record last season” → team record card</li>
               <li>“compare tatum vs brown points per game throughout their careers” → overlaid lines</li>
+              <li>“who led the nba in assists in the 2024-25 season?” → ranked leaderboard</li>
             </ul>
             <div className="demo-row">
               <span className="muted">Backend down? Preview with fixtures:</span>
@@ -132,6 +135,7 @@ export default function App() {
               <button className="btn btn-ghost" onClick={() => loadDemo('compare')}>Comparison</button>
               <button className="btn btn-ghost" onClick={() => loadDemo('multi')}>Career compare</button>
               <button className="btn btn-ghost" onClick={() => loadDemo('teams')}>Team compare</button>
+              <button className="btn btn-ghost" onClick={() => loadDemo('leaders')}>Leaderboard</button>
             </div>
           </section>
         )}

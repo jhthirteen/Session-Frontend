@@ -12,6 +12,7 @@ export const FIXTURE_SINGLE_STAT: QueryResponse = {
     season: '2025-26',
     metrics: ['PTS'],
     last_n: null,
+    top_n: null,
     per_mode: 'PerGame',
     seasons: [],
     highlight_season: null,
@@ -53,6 +54,7 @@ export const FIXTURE_COMPARISON: QueryResponse = {
     season: '2024-25',
     metrics: ['PTS', 'AST'],
     last_n: null,
+    top_n: null,
     per_mode: 'PerGame',
     seasons: [],
     highlight_season: null,
@@ -82,6 +84,7 @@ export const FIXTURE_TREND: QueryResponse = {
     season: '2025-26',
     metrics: ['PTS'],
     last_n: null,
+    top_n: null,
     per_mode: 'PerGame',
     seasons: ['2018-19', '2019-20', '2020-21', '2021-22', '2022-23', '2023-24', '2024-25', '2025-26'],
     highlight_season: '2022-23',
@@ -115,6 +118,8 @@ export const EXAMPLE_QUERIES = [
   'what was the celtics record last season',
   'compare jayson tatum vs jaylen brown points per game throughout their careers',
   'celtics vs lakers record last season',
+  'who led the nba in assists in the 2024-25 season?',
+  'who were the top 10 scorers in the nba in 2024-25?',
   'how many ppg did mickey mouse average',
 ];
 
@@ -129,6 +134,7 @@ export const FIXTURE_MULTI_TREND: QueryResponse = {
     season: '2024-25',
     metrics: ['PTS'],
     last_n: null,
+    top_n: null,
     per_mode: 'PerGame',
     seasons: ['2016-17', '2017-18', '2018-19', '2019-20', '2020-21', '2021-22', '2022-23', '2023-24', '2024-25'],
     highlight_season: null,
@@ -174,6 +180,7 @@ export const FIXTURE_TEAM_COMPARE: QueryResponse = {
     season: '2024-25',
     metrics: ['W', 'L', 'W_PCT'],
     last_n: null,
+    top_n: null,
     per_mode: 'PerGame',
     seasons: [],
     highlight_season: null,
@@ -192,4 +199,45 @@ export const FIXTURE_TEAM_COMPARE: QueryResponse = {
     series_key: 'TEAM_NAME',
   },
   debug: [],
+};
+
+/** Real 2024-25 AST leaders (live backend run) — backend-offline preview. */
+export const FIXTURE_LEADERBOARD: QueryResponse = {
+  answer_text:
+    'Trae Young led the NBA in AST (11.6 per game) in 2024-25 — top 5 shown.',
+  spec: {
+    intent: 'league_leaders',
+    players: ['Trae Young', 'Nikola Jokić', 'Tyrese Haliburton', 'Cade Cunningham', 'James Harden'],
+    teams: [],
+    season: '2024-25',
+    metrics: ['AST'],
+    last_n: null,
+    top_n: 5,
+    per_mode: 'PerGame',
+    seasons: [],
+    highlight_season: null,
+    highlight_note: null,
+    raw_query: 'who led the nba in assists in the 2024-25 season?',
+  },
+  data: [
+    { RANK: 1, PLAYER_NAME: 'Trae Young', TEAM_ABBREVIATION: 'ATL', SEASON: '2024-25', GP: 76, AST: 11.6, PER_MODE: 'PerGame' },
+    { RANK: 2, PLAYER_NAME: 'Nikola Jokić', TEAM_ABBREVIATION: 'DEN', SEASON: '2024-25', GP: 70, AST: 10.2, PER_MODE: 'PerGame' },
+    { RANK: 3, PLAYER_NAME: 'Tyrese Haliburton', TEAM_ABBREVIATION: 'IND', SEASON: '2024-25', GP: 73, AST: 9.2, PER_MODE: 'PerGame' },
+    { RANK: 4, PLAYER_NAME: 'Cade Cunningham', TEAM_ABBREVIATION: 'DET', SEASON: '2024-25', GP: 70, AST: 9.1, PER_MODE: 'PerGame' },
+    { RANK: 5, PLAYER_NAME: 'James Harden', TEAM_ABBREVIATION: 'LAC', SEASON: '2024-25', GP: 79, AST: 8.7, PER_MODE: 'PerGame' },
+  ],
+  viz_hint: {
+    type: 'leaderboard',
+    title: '2024-25 NBA AST leaders (per game, top 5)',
+    x_key: 'PLAYER_NAME',
+    y_keys: ['AST'],
+    series_key: 'PLAYER_NAME',
+  },
+  debug: [
+    {
+      tool: 'get_league_leaders',
+      args: { stat_category: 'AST', season: '2024-25', top_n: 5, per_mode: 'PerGame' },
+      result_summary: '5 rows',
+    },
+  ],
 };

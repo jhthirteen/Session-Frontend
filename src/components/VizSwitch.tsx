@@ -3,6 +3,7 @@ import { detectSeriesKey } from '../lib/pivot';
 import ComparisonBars from './ComparisonBars';
 import ComparisonChart from './ComparisonChart';
 import DataTable from './DataTable';
+import Leaderboard from './Leaderboard';
 import { StatCard, TeamStatCard } from './StatCards';
 import TrendOrTimeChart from './TrendOrTimeChart';
 
@@ -42,6 +43,8 @@ export default function VizSwitch({ response }: { response: QueryResponse }) {
       return <ComparisonChart response={response} />;
     case 'comparison_bars':
       return <ComparisonBars response={response} />;
+    case 'leaderboard':
+      return <Leaderboard response={response} />;
     case 'time_series':
       return multiSeries ? (
         <ComparisonChart response={response} />
