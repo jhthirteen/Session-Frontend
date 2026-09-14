@@ -9,6 +9,7 @@ export type Intent =
   | 'player_career_trend'
   | 'team_history_trend'
   | 'league_leaders'
+  | 'team_leaders'
   | 'needs_clarification';
 
 export type VizType =
@@ -34,7 +35,12 @@ export type MetricKey =
   | 'FT_PCT'
   | 'W'
   | 'L'
-  | 'W_PCT';
+  | 'W_PCT'
+  | 'PLUS_MINUS'
+  | 'OPP_PTS'
+  | 'OFF_RATING'
+  | 'DEF_RATING'
+  | 'NET_RATING';
 
 export interface QuerySpec {
   intent: Intent;

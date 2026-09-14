@@ -65,6 +65,11 @@ const METRIC_LABELS: Record<string, string> = {
   W: 'Wins',
   L: 'Losses',
   W_PCT: 'Win%',
+  PLUS_MINUS: '+/-',
+  OPP_PTS: 'Opp PTS',
+  OFF_RATING: 'Off Rtg',
+  DEF_RATING: 'Def Rtg',
+  NET_RATING: 'Net Rtg',
   GP: 'Games',
   SEASON: 'Season',
   GAME_DATE: 'Game',
@@ -78,13 +83,17 @@ export function metricLabel(key: string): string {
   return METRIC_LABELS[key] ?? key;
 }
 
-/** 28.7 -> "28.7", 0.567 -> "56.7%" for PCT keys, 26 -> "26". */
+/** 28.7 -> "28.7", 0.567 -> "56.7%" for PCT keys, 26 -> "26", 1264 -> "1,264". */
 export function formatStat(key: string, value: number | string | null): string {
   if (value === null || value === undefined) return '—';
   if (typeof value === 'string') return value;
   if (key.endsWith('_PCT')) return `${(value * 100).toFixed(1)}%`;
   if (key === 'W_PCT') return `${(value * 100).toFixed(1)}%`;
-  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+  if (Number.isInteger(value)) {
+    // Season totals run into the thousands (9331 PTS, 1264 FG3M) — group them.
+    return Math.abs(value) >= 1000 ? value.toLocaleString('en-US') : String(value);
+  }
+  return value.toFixed(1);
 }
 
 /** Axis label respects spec.per_mode: per-game vs totals. */

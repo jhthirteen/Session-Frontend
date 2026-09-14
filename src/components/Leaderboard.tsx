@@ -13,16 +13,28 @@ import type { QueryResponse } from '../lib/types';
 import { formatStat, metricLabel, seriesColor, trendAxisLabel } from '../lib/format';
 
 /**
- * Ranked leaderboard: one stat, one season, top N players. Horizontal bars
- * sorted by RANK (best on top), #1 highlighted in brand purple with a Leader
- * badge. A vertical layout reads as a ranking — N names on a vertical bar
- * chart's x-axis would be unreadable.
+ * Ranked leaderboard: one stat, one season, top N players OR teams.
+ * Horizontal bars sorted by RANK (best on top), #1 highlighted in brand
+ * purple with a Leader badge. The entity axis follows viz_hint.x_key
+ * (PLAYER_NAME vs TEAM_NAME) so team boards need no new component.
  */
 export default function Leaderboard({ response }: { response: QueryResponse }) {
   const { data, viz_hint, spec } = response;
   const metric = viz_hint.y_keys.length > 0 ? viz_hint.y_keys[0] : 'PTS';
+  const nameKey = viz_hint.x_key === 'TEAM_NAME' ? 'TEAM_NAME' : 'PLAYER_NAME';
+  // Defense in depth: the backend unifies per_mode and slices single-entity
+  // misfires, but if duplicate rows for one entity ever arrive (e.g. a
+  // PerGame + Totals double-call), first occurrence wins instead of drawing
+  // the same team twice like the Sept 7 GSW screenshot.
+  const seen = new Set<string>();
   const rows = [...data]
     .filter((r) => typeof r.error !== 'string')
+    .filter((r) => {
+      const n = String(r[nameKey] ?? '');
+      if (seen.has(n)) return false;
+      seen.add(n);
+      return true;
+    })
     .sort((a, b) => Number(a.RANK ?? 999) - Number(b.RANK ?? 999));
   const errors = data.filter((r) => typeof r.error === 'string');
   const leader = rows[0];
@@ -33,7 +45,7 @@ export default function Leaderboard({ response }: { response: QueryResponse }) {
       {leader && (
         <div className="leader-banner">
           <span className="leader-badge">Leader</span>
-          <b>{String(leader.PLAYER_NAME ?? 'Unknown')}</b>
+          <b>{String(leader[nameKey] ?? 'Unknown')}</b>
           <span className="muted">
             {' '}{formatStat(metric, leader[metric] as number | string | null)}{' '}
             {metricLabel(metric)} {spec.per_mode === 'Totals' ? 'total' : 'per game'}
@@ -55,7 +67,7 @@ export default function Leaderboard({ response }: { response: QueryResponse }) {
             />
             <YAxis
               type="category"
-              dataKey="PLAYER_NAME"
+              dataKey={nameKey}
               tick={{ fill: '#111111', fontSize: 13 }}
               axisLine={false}
               tickLine={false}
@@ -81,7 +93,7 @@ export default function Leaderboard({ response }: { response: QueryResponse }) {
             />
             <Bar dataKey={metric} radius={[0, 4, 4, 0]} maxBarSize={26}>
               {rows.map((r, i) => (
-                <Cell key={String(r.PLAYER_NAME ?? i)} fill={seriesColor(i === 0 ? 0 : 1)} />
+                <Cell key={String(r[nameKey] ?? i)} fill={seriesColor(i === 0 ? 0 : 1)} />
               ))}
               <LabelList
                 dataKey={metric}
@@ -100,7 +112,7 @@ export default function Leaderboard({ response }: { response: QueryResponse }) {
       {errors.length > 0 && (
         <div className="note">
           {errors.map((r, i) => (
-            <div key={i}>Note — {String(r.PLAYER_NAME ?? 'Unknown')}: {String(r.error)}</div>
+            <div key={i}>Note — {String(r[nameKey] ?? 'Unknown')}: {String(r.error)}</div>
           ))}
         </div>
       )}

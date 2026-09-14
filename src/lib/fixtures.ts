@@ -120,6 +120,9 @@ export const EXAMPLE_QUERIES = [
   'celtics vs lakers record last season',
   'who led the nba in assists in the 2024-25 season?',
   'who were the top 10 scorers in the nba in 2024-25?',
+  'which team won the most games in the 2024-25 season?',
+  'what was the best offense in the nba in 2024-25?',
+  'how many three-pointers did the golden state warriors make in 2024-25?',
   'how many ppg did mickey mouse average',
 ];
 
@@ -237,6 +240,47 @@ export const FIXTURE_LEADERBOARD: QueryResponse = {
     {
       tool: 'get_league_leaders',
       args: { stat_category: 'AST', season: '2024-25', top_n: 5, per_mode: 'PerGame' },
+      result_summary: '5 rows',
+    },
+  ],
+};
+
+/** Real 2024-25 team wins leaders (live backend run) — backend-offline preview. */
+export const FIXTURE_TEAM_LEADERS: QueryResponse = {
+  answer_text:
+    'Oklahoma City Thunder led the NBA in team W (68) in 2024-25 — top 5 shown.',
+  spec: {
+    intent: 'team_leaders',
+    players: [],
+    teams: ['Oklahoma City Thunder', 'Cleveland Cavaliers', 'Boston Celtics', 'Houston Rockets', 'New York Knicks'],
+    season: '2024-25',
+    metrics: ['W'],
+    last_n: null,
+    top_n: 5,
+    per_mode: 'PerGame',
+    seasons: [],
+    highlight_season: null,
+    highlight_note: null,
+    raw_query: 'which team won the most games in the 2024-25 season?',
+  },
+  data: [
+    { RANK: 1, TEAM_NAME: 'Oklahoma City Thunder', SEASON: '2024-25', GP: 82, W: 68, L: 14, PER_MODE: 'PerGame' },
+    { RANK: 2, TEAM_NAME: 'Cleveland Cavaliers', SEASON: '2024-25', GP: 82, W: 64, L: 18, PER_MODE: 'PerGame' },
+    { RANK: 3, TEAM_NAME: 'Boston Celtics', SEASON: '2024-25', GP: 82, W: 61, L: 21, PER_MODE: 'PerGame' },
+    { RANK: 4, TEAM_NAME: 'Houston Rockets', SEASON: '2024-25', GP: 82, W: 52, L: 30, PER_MODE: 'PerGame' },
+    { RANK: 5, TEAM_NAME: 'New York Knicks', SEASON: '2024-25', GP: 82, W: 51, L: 31, PER_MODE: 'PerGame' },
+  ],
+  viz_hint: {
+    type: 'leaderboard',
+    title: '2024-25 NBA team W leaders (per game, top 5)',
+    x_key: 'TEAM_NAME',
+    y_keys: ['W'],
+    series_key: 'TEAM_NAME',
+  },
+  debug: [
+    {
+      tool: 'get_team_leaders',
+      args: { stat: 'W', season: '2024-25', top_n: 5, per_mode: 'PerGame' },
       result_summary: '5 rows',
     },
   ],

@@ -4,10 +4,29 @@ import { formatStat, metricLabel } from '../lib/format';
 export function StatCard({ response }: { response: QueryResponse }) {
   const { data, viz_hint, spec } = response;
   const row = data[0] ?? {};
+  // Player rows carry PLAYER_NAME; team rows (team_stats routed here for
+  // non-record stats) carry TEAM_NAME — prefer whichever is present.
   const name =
-    (row.PLAYER_NAME as string) ?? spec.players[0] ?? 'Player';
+    (row.PLAYER_NAME as string) ??
+    (row.TEAM_NAME as string) ??
+    spec.players[0] ??
+    spec.teams[0] ??
+    'Player';
   const season = (row.SEASON as string) ?? spec.season ?? '';
   const team = row.TEAM_ABBREVIATION as string | undefined;
+  // Team year-by-year rows are season totals; player season rows are
+  // per-game averages — suffix accordingly instead of hardcoding one.
+  const isTeam = row.PLAYER_NAME == null && (row.TEAM_NAME != null || spec.teams.length > 0);
+  const suffixFor = (k: string) =>
+    k.endsWith('_PCT') || k === 'W_PCT'
+      ? ''
+      : k === 'MIN'
+        ? ' min'
+        : isTeam
+          ? ' total'
+          : k === 'PTS' || k === 'AST' || k === 'REB'
+            ? ' / game'
+            : '';
 
   return (
     <div className="stat-grid">
@@ -19,7 +38,7 @@ export function StatCard({ response }: { response: QueryResponse }) {
           <div className="big-stat-value">
             {formatStat(k, (row[k] as number | string | null) ?? null)}
             <span className="big-stat-suffix">
-              {k.endsWith('_PCT') || k === 'W_PCT' ? '' : k === 'MIN' ? ' min' : k === 'PTS' || k === 'AST' || k === 'REB' ? ' / game' : ''}
+              {suffixFor(k)}
             </span>
           </div>
           <div className="big-stat-meta">
@@ -34,7 +53,7 @@ export function StatCard({ response }: { response: QueryResponse }) {
         <div className="stat-foot">
           Also on the row:{' '}
           {Object.entries(row)
-            .filter(([k]) => !['PLAYER_NAME', 'SEASON', 'TEAM_ABBREVIATION', viz_hint.y_keys[0]].includes(k))
+            .filter(([k]) => !['PLAYER_NAME', 'TEAM_NAME', 'SEASON', 'TEAM_ABBREVIATION', viz_hint.y_keys[0]].includes(k))
             .slice(0, 6)
             .map(([k, v]) => `${k} ${formatStat(k, v as number | string | null)}`)
             .join(' · ')}

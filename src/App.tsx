@@ -3,7 +3,7 @@ import DebugTrace from './components/DebugTrace';
 import QueryBox from './components/QueryBox';
 import VizSwitch from './components/VizSwitch';
 import { apiBase, checkHealth, queryNlp } from './lib/api';
-import { FIXTURE_COMPARISON, FIXTURE_LEADERBOARD, FIXTURE_MULTI_TREND, FIXTURE_SINGLE_STAT, FIXTURE_TEAM_COMPARE, FIXTURE_TREND } from './lib/fixtures';
+import { FIXTURE_COMPARISON, FIXTURE_LEADERBOARD, FIXTURE_MULTI_TREND, FIXTURE_SINGLE_STAT, FIXTURE_TEAM_COMPARE, FIXTURE_TEAM_LEADERS, FIXTURE_TREND } from './lib/fixtures';
 import type { ApiError, QueryResponse } from './lib/types';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
@@ -73,7 +73,7 @@ export default function App() {
 
   const cancel = useCallback(() => abortRef.current?.abort(), []);
 
-  const loadDemo = (which: 'single' | 'trend' | 'compare' | 'multi' | 'teams' | 'leaders') => {
+  const loadDemo = (which: 'single' | 'trend' | 'compare' | 'multi' | 'teams' | 'leaders' | 'teamleaders') => {
     const r =
       which === 'trend'
         ? FIXTURE_TREND
@@ -85,7 +85,9 @@ export default function App() {
               ? FIXTURE_TEAM_COMPARE
               : which === 'leaders'
                 ? FIXTURE_LEADERBOARD
-                : FIXTURE_SINGLE_STAT;
+                : which === 'teamleaders'
+                  ? FIXTURE_TEAM_LEADERS
+                  : FIXTURE_SINGLE_STAT;
     setResponse(r);
     setStatus('success');
     setError(null);
@@ -136,6 +138,7 @@ export default function App() {
               <button className="btn btn-ghost" onClick={() => loadDemo('multi')}>Career compare</button>
               <button className="btn btn-ghost" onClick={() => loadDemo('teams')}>Team compare</button>
               <button className="btn btn-ghost" onClick={() => loadDemo('leaders')}>Leaderboard</button>
+              <button className="btn btn-ghost" onClick={() => loadDemo('teamleaders')}>Team board</button>
             </div>
           </section>
         )}
