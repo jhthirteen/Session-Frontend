@@ -116,3 +116,17 @@ backend serves CORS for `:5173`/`:3000`).
 - `npm run build` green (`tsc -b` + vite; chunk-size warning pre-existing),
   `npm run lint` (oxlint) clean throughout. No test runner in frontend —
   verified via backend offline suite (126 passed) + traced payloads.
+
+---
+
+## Continued session 2026-09-08 — no frontend changes (backend-only session)
+
+- Messy-NLP stat normalization, nickname revert, and LLM metric fallback all
+  landed backend-only (`feature/the_answer`); contract unchanged (no new
+  intents/viz/fields), so no frontend work needed.
+- Indirectly covered: queries like "Steph Curry's 3-point percentage vs Luka
+  over 5 seasons" now resolve to FG3_PCT + `compare_trends` → existing
+  `ComparisonChart` multi-series path with metric selector. No new fixtures;
+  consider adding a pct-trends fixture + chip next frontend pass.
+- Verification: `npm run build` / `oxlint` not re-run (nothing touched since
+  last green); backend offline suite at 149 passed.
