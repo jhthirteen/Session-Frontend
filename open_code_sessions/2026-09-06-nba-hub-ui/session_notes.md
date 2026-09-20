@@ -78,3 +78,41 @@ backend serves CORS for `:5173`/`:3000`).
 - If 413s recur on huge queries: drop `MAX_ITERS` 6→4 or echo aggregates only.
 - Possible polish: `single_stat` with N rows → side-by-side mini cards
   (backend never emits this today, so skipped); delete dead `src/App.css`.
+
+---
+
+## Continued session 2026-09-07 — viz robustness + leaders + team stats (frontend half)
+
+### TrendOrTimeChart metric selector (Curry PTS+FG3M squash)
+- Multi-metric overlays on one axis unreadable when magnitudes differ (PTS
+  ~2000 totals vs 3PM ~300). Now defaults to `y_keys[0]` with a metric
+  selector + "All metrics" overlay option — same pattern as ComparisonChart.
+
+### Leaderboard (new `Leaderboard.tsx` for `leaderboard` viz)
+- Horizontal ranked bars (`layout="vertical"`, RANK-sorted), #1 in purple with
+  Leader banner (stat + GP), rank/team tooltips, error-note path. Vertical
+  layout chosen deliberately: 10 names on ComparisonBars' x-axis unreadable.
+- Generalized via `viz_hint.x_key` — team boards (`TEAM_NAME`) need no new
+  component. Dedupe-by-name defense added after the Sept 7 GSW screenshot
+  (PerGame+Totals double-call drew every team twice); backend unifies modes,
+  frontend never double-draws regardless.
+- Contract mirrors: `Intent += league_leaders | team_leaders`,
+  `VizType += leaderboard`, `QuerySpec.top_n`, `MetricKey += PLUS_MINUS,
+  OPP_PTS, OFF/DEF/NET_RATING` (+ labels: Opp PTS, Off/Def/Net Rtg).
+
+### StatCard team support (GSW single-stat path)
+- Name falls back to `TEAM_NAME`/`spec.teams`; suffix totals-aware
+  ("1,264 total" for team rows, "/ game" still for players); `formatStat`
+  groups thousands (9331 → "9,331"); TEAM_NAME excluded from context foot.
+
+### Fixtures / chips / demo
+- `FIXTURE_LEADERBOARD` (real 2024-25 AST top-5: Trae 11.6 → Harden 8.7),
+  `FIXTURE_TEAM_LEADERS` (real 2024-25 wins: OKC 68 → Knicks 51).
+- Example chips added: both leaders questions, most-wins, best-offense,
+  GSW-threes. Demo buttons: Leaderboard + Team board.
+- `types.ts` spec shape note: all 5 older fixtures gained `top_n: null`.
+
+### Verification
+- `npm run build` green (`tsc -b` + vite; chunk-size warning pre-existing),
+  `npm run lint` (oxlint) clean throughout. No test runner in frontend —
+  verified via backend offline suite (126 passed) + traced payloads.

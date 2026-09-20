@@ -8,6 +8,8 @@ export type Intent =
   | 'compare_trends'
   | 'player_career_trend'
   | 'team_history_trend'
+  | 'league_leaders'
+  | 'team_leaders'
   | 'needs_clarification';
 
 export type VizType =
@@ -17,7 +19,8 @@ export type VizType =
   | 'game_log_table'
   | 'team_stat_card'
   | 'trend_line'
-  | 'multi_trend';
+  | 'multi_trend'
+  | 'leaderboard';
 
 export type MetricKey =
   | 'PTS'
@@ -32,7 +35,12 @@ export type MetricKey =
   | 'FT_PCT'
   | 'W'
   | 'L'
-  | 'W_PCT';
+  | 'W_PCT'
+  | 'PLUS_MINUS'
+  | 'OPP_PTS'
+  | 'OFF_RATING'
+  | 'DEF_RATING'
+  | 'NET_RATING';
 
 export interface QuerySpec {
   intent: Intent;
@@ -41,6 +49,7 @@ export interface QuerySpec {
   season: string | null;
   metrics: MetricKey[];
   last_n: number | null;
+  top_n: number | null;
   per_mode: 'PerGame' | 'Totals';
   seasons: string[];
   highlight_season: string | null;

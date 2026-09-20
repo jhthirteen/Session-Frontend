@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   CartesianGrid,
   Legend,
@@ -36,20 +37,54 @@ export default function TrendOrTimeChart({ response, mode }: Props) {
     __full: mode === 'season' ? String(r.SEASON ?? '') : fullDate(r.GAME_DATE),
   }));
 
+  const yKeys = viz_hint.y_keys.length > 0 ? viz_hint.y_keys : ['PTS'];
+  // Multi-metric overlays on one axis are unreadable when magnitudes differ
+  // (e.g. PTS ~2000 totals vs 3PM ~300) — default to the first metric with a
+  // selector, same pattern as ComparisonChart. "All" restores the overlay.
+  const [selected, setSelected] = useState<string>(yKeys[0]);
+  const activeMetric = yKeys.includes(selected) ? selected : yKeys[0];
+  const [showAll, setShowAll] = useState(false);
+  const activeKeys = showAll ? yKeys : [activeMetric];
+
   const yLabel =
     mode === 'season'
-      ? trendAxisLabel(viz_hint.y_keys, spec.per_mode)
-      : viz_hint.y_keys.map(metricLabel).join(' + ');
+      ? trendAxisLabel(activeKeys, spec.per_mode)
+      : activeKeys.map(metricLabel).join(' + ');
 
   const highlight = spec.highlight_season
     ? rows.find((r) => String(r.SEASON) === spec.highlight_season)
     : undefined;
-  const highlightMetric = viz_hint.y_keys[0];
+  const highlightMetric = activeKeys[0];
 
   return (
     <div>
       {spec.highlight_note && (
         <div className="highlight">{spec.highlight_note}</div>
+      )}
+      {yKeys.length > 1 && (
+        <div className="compare-controls">
+          <select
+            className="metric-select"
+            value={showAll ? '__all' : activeMetric}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === '__all') {
+                setShowAll(true);
+              } else {
+                setShowAll(false);
+                setSelected(v);
+              }
+            }}
+            aria-label="Metric"
+          >
+            {yKeys.map((m) => (
+              <option key={m} value={m}>
+                {metricLabel(m)}
+              </option>
+            ))}
+            <option value="__all">All metrics</option>
+          </select>
+        </div>
       )}
       <div className="chart-wrap">
         <ResponsiveContainer width="100%" height={340}>
@@ -89,7 +124,9 @@ export default function TrendOrTimeChart({ response, mode }: Props) {
               }
             />
             <Legend wrapperStyle={{ color: '#6b7280', fontSize: 13 }} />
-            {viz_hint.y_keys.map((k, i) => (
+            {activeKeys.map((k) => {
+              const i = yKeys.indexOf(k);
+              return (
               <Line
                 key={k}
                 type="monotone"
@@ -108,7 +145,8 @@ export default function TrendOrTimeChart({ response, mode }: Props) {
                 }}
                 activeDot={{ r: 4 }}
               />
-            ))}
+              );
+            })}
             {highlight && highlightMetric && typeof highlight[highlightMetric] === 'number' && (
               <ReferenceDot
                 x={highlight.__xLabel as string}
